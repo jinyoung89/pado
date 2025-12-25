@@ -67,10 +67,13 @@ export default function MainPage() {
     setIsDiarySelectOpen(false);
 
     if (hasSheetHistoryRef.current) {
-      if (!skipHistoryBack) {
+      if (skipHistoryBack) {
+        // 페이지 이동 시: history.back() 안 하고 ref만 정리
+        hasSheetHistoryRef.current = false;
+      } else {
+        // 일반 닫기: history.back() 호출 (popstate에서 ref 정리됨)
         window.history.back();
       }
-      hasSheetHistoryRef.current = false;
     }
   }, []);
 
@@ -78,7 +81,7 @@ export default function MainPage() {
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
       if (hasSheetHistoryRef.current) {
-        // 시트가 열려있으면 닫기
+        // 시트 히스토리가 있으면 닫기만 (온보딩으로 안 감)
         hasSheetHistoryRef.current = false;
         setIsWeatherSheetOpen(false);
         setIsMenuSheetOpen(false);
