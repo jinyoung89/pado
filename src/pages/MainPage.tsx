@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,65 +45,42 @@ export default function MainPage() {
   const [isMenuSheetOpen, setIsMenuSheetOpen] = useState(false);
   const [isDiarySelectOpen, setIsDiarySelectOpen] = useState(false);
 
-  // history 상태 추적
-  const hasSheetHistoryRef = useRef(false);
-  const hasBaseHistoryRef = useRef(false);
-
   // 바텀시트가 열려있는지 확인
   const isAnySheetOpen = isWeatherSheetOpen || isMenuSheetOpen || isDiarySelectOpen;
 
-  // 메인 페이지 진입 시 base history 추가 (백 버튼용)
-  useEffect(() => {
-    if (!hasBaseHistoryRef.current) {
-      window.history.pushState({ type: 'mainBase' }, '');
-      hasBaseHistoryRef.current = true;
-    }
-  }, []);
-
-  // 바텀시트 열기 (history state 추가)
+  // 바텀시트 열기
   const openSheet = useCallback((setter: (v: boolean) => void) => {
-    if (!hasSheetHistoryRef.current) {
-      window.history.pushState({ type: 'sheet' }, '');
-      hasSheetHistoryRef.current = true;
-    }
     setter(true);
   }, []);
 
-  // 바텀시트 닫기 (history 정리)
-  const closeAllSheets = useCallback((skipHistoryBack = false) => {
+  // 바텀시트 닫기
+  const closeAllSheets = useCallback(() => {
     setIsWeatherSheetOpen(false);
     setIsMenuSheetOpen(false);
     setIsDiarySelectOpen(false);
-
-    if (hasSheetHistoryRef.current) {
-      if (skipHistoryBack) {
-        // 페이지 이동 시: history.back() 안 하고 ref만 정리
-        hasSheetHistoryRef.current = false;
-      } else {
-        // 일반 닫기: history.back() 호출 (popstate에서 ref 정리됨)
-        window.history.back();
-      }
-    }
   }, []);
 
-  // 백버튼 핸들러
+  // 백버튼 핸들러 (graniteEvent로 처리)
   useEffect(() => {
-    const handlePopState = () => {
-      if (hasSheetHistoryRef.current) {
-        // 시트 히스토리가 pop됨 → 시트 닫기
-        hasSheetHistoryRef.current = false;
-        setIsWeatherSheetOpen(false);
-        setIsMenuSheetOpen(false);
-        setIsDiarySelectOpen(false);
-      } else if (hasBaseHistoryRef.current) {
-        // base 히스토리가 pop됨 → 온보딩으로
-        hasBaseHistoryRef.current = false;
-        navigate('/', { replace: true });
-      }
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [navigate]);
+    let cleanup = () => {};
+
+    import('@apps-in-toss/web-framework').then(({ graniteEvent }) => {
+      const handleBack = () => {
+        if (isAnySheetOpen) {
+          // 시트가 열려있으면 닫기
+          closeAllSheets();
+          return true; // 이벤트 소비됨
+        }
+        // 시트가 없으면 false 반환 → 토스가 처리 (온보딩으로 가거나 종료)
+        return false;
+      };
+
+      graniteEvent.addEventListener('backEvent', handleBack);
+      cleanup = () => graniteEvent.removeEventListener('backEvent', handleBack);
+    });
+
+    return () => cleanup();
+  }, [isAnySheetOpen, closeAllSheets]);
 
   // TDS BottomSheet의 onDimmerClick 핸들러
   const closeSheet = useCallback(() => {
@@ -209,7 +186,7 @@ export default function MainPage() {
         <BottomSheet.Header>감정 정리하기</BottomSheet.Header>
         <div style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <ListRow
-            onClick={() => { closeAllSheets(true); navigate('/diary'); }}
+            onClick={() => { closeAllSheets(); navigate('/diary'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>✏️</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="자유롭게 적기" bottom="내 마음을 자유롭게 기록해요" />}
             withArrow
@@ -217,7 +194,7 @@ export default function MainPage() {
             verticalPadding="large"
           />
           <ListRow
-            onClick={() => { closeAllSheets(true); navigate('/diary/guided'); }}
+            onClick={() => { closeAllSheets(); navigate('/diary/guided'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>💬</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="질문 따라가기" bottom="질문에 답하며 마음을 정리해요" />}
             withArrow
@@ -233,7 +210,7 @@ export default function MainPage() {
         <BottomSheet.Header>메뉴</BottomSheet.Header>
         <div style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <ListRow
-            onClick={() => { closeAllSheets(true); navigate('/calendar'); }}
+            onClick={() => { closeAllSheets(); navigate('/calendar'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>📅</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="캘린더" bottom="지난 기록을 돌아봐요" />}
             withArrow
@@ -241,7 +218,7 @@ export default function MainPage() {
             verticalPadding="large"
           />
           <ListRow
-            onClick={() => { closeAllSheets(true); navigate('/timer'); }}
+            onClick={() => { closeAllSheets(); navigate('/timer'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>⏰</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="예약종료" bottom="타이머를 설정해요" />}
             withArrow
@@ -249,7 +226,7 @@ export default function MainPage() {
             verticalPadding="large"
           />
           <ListRow
-            onClick={() => { closeAllSheets(true); navigate('/settings'); }}
+            onClick={() => { closeAllSheets(); navigate('/settings'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>⚙️</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="설정" bottom="앱 설정을 변경해요" />}
             withArrow

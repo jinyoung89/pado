@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Paragraph } from '@toss/tds-mobile';
 import iconImage from '../assets/icon.png';
@@ -6,29 +5,11 @@ import iconImage from '../assets/icon.png';
 export default function OnboardingPage() {
   const navigate = useNavigate();
 
-  // 온보딩 진입 시 히스토리 엔트리 추가 (백버튼 감지용)
-  useEffect(() => {
-    // 약간의 딜레이 후 히스토리 엔트리 추가 (navigate 완료 대기)
-    const pushTimer = setTimeout(() => {
-      window.history.pushState({ type: 'onboardingBase' }, '');
-    }, 100);
-
-    const handlePopState = () => {
-      // 우리가 추가한 엔트리가 pop되면, 한번 더 back해서 토스 네이티브로 넘김
-      setTimeout(() => {
-        window.history.back();
-      }, 0);
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => {
-      clearTimeout(pushTimer);
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, []);
+  // 온보딩에서 백버튼은 토스가 네이티브로 처리 (종료 팝업)
+  // graniteEvent는 App.tsx에서 전역 처리
 
   const handleStart = () => {
-    navigate('/main', { replace: true });
+    navigate('/main');
   };
 
   return (
