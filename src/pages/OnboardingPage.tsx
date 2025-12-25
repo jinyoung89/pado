@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Paragraph } from '@toss/tds-mobile';
 import iconImage from '../assets/icon.png';
@@ -5,7 +6,19 @@ import iconImage from '../assets/icon.png';
 export default function OnboardingPage() {
   const navigate = useNavigate();
 
-  // 온보딩에서 백버튼 → 토스가 자동으로 종료 팝업 표시
+  // 온보딩 진입 시 히스토리 엔트리 추가 (백버튼 감지용)
+  useEffect(() => {
+    // 항상 히스토리 엔트리 추가
+    window.history.pushState({ type: 'onboardingBase' }, '');
+
+    const handlePopState = () => {
+      // 우리가 추가한 엔트리가 pop되면, 한번 더 back해서 토스 네이티브로 넘김
+      window.history.back();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleStart = () => {
     navigate('/main', { replace: true });
