@@ -114,13 +114,13 @@ export default function MainPage() {
   return (
     <div className="full-screen" onClick={handleBackgroundClick}>
       <div className="main-background">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           <motion.div
             key={selectedWeatherState}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
           >
             <Lottie
