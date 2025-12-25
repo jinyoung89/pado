@@ -5,11 +5,11 @@ import iconImage from '../assets/icon.png';
 export default function OnboardingPage() {
   const navigate = useNavigate();
 
-  // 온보딩에서 백버튼은 토스가 네이티브로 처리 (종료 팝업)
-  // graniteEvent는 App.tsx에서 전역 처리
+  // 온보딩에서는 히스토리를 건드리지 않음
+  // 백버튼 누르면 토스 네이티브가 자동으로 종료 팝업 표시
 
   const handleStart = () => {
-    navigate('/main');
+    navigate('/main', { replace: true });
   };
 
   return (
