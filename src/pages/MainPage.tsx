@@ -1,18 +1,44 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
-import type { LottieRefCurrentProps } from 'lottie-react';
 import { BottomSheet, ListRow } from '@toss/tds-mobile';
 import { WEATHER_LIST, WEATHER_DATA } from '../data/weather';
 import type { WeatherType } from '../types';
 import { getSelectedWeather, setSelectedWeather, createOrUpdateTodayRecord } from '../utils/storage';
-import mainAnimation from '../assets/lottie/main.json';
+
+// Lottie 파일들 import
+import basic from '../assets/lottie/01Basic 2.json';
+import sunny from '../assets/lottie/02Sunny 2.json';
+import cloudy from '../assets/lottie/03Cloudy 2.json';
+import rainy from '../assets/lottie/04Rain 2.json';
+import storm from '../assets/lottie/05Thunderstorm 2.json';
+import sunshower from '../assets/lottie/06Sunshower 2.json';
+import foggy from '../assets/lottie/07Fog 2.json';
+import snowy from '../assets/lottie/08Snow 2.json';
+import fire from '../assets/lottie/09Fire 2.json';
+import sunset from '../assets/lottie/10Sunset 2.json';
+import night from '../assets/lottie/11Night 2.json';
+import sunrise from '../assets/lottie/12Sunrise 2.json';
+
+const LOTTIE_FILES: Record<WeatherType, object> = {
+  basic,
+  sunny,
+  cloudy,
+  rainy,
+  storm,
+  sunshower,
+  foggy,
+  snowy,
+  fire,
+  sunset,
+  night,
+  sunrise,
+};
 
 export default function MainPage() {
   const navigate = useNavigate();
-  const lottieRef = useRef<LottieRefCurrentProps>(null);
-  const [selectedWeather, setSelectedWeatherState] = useState<WeatherType>(
-    getSelectedWeather() || 'sunny'
+  const [selectedWeatherState, setSelectedWeatherState] = useState<WeatherType>(
+    getSelectedWeather() || 'basic'
   );
   const [isWeatherSheetOpen, setIsWeatherSheetOpen] = useState(false);
   const [isMenuSheetOpen, setIsMenuSheetOpen] = useState(false);
@@ -52,26 +78,6 @@ export default function MainPage() {
     }
   }, [isAnySheetOpen]);
 
-  useEffect(() => {
-    if (lottieRef.current) {
-      const weatherInfo = WEATHER_DATA[selectedWeather];
-      lottieRef.current.goToAndPlay(weatherInfo.startFrame, true);
-    }
-  }, [selectedWeather]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (lottieRef.current) {
-        const weatherInfo = WEATHER_DATA[selectedWeather];
-        const currentFrame = lottieRef.current.animationItem?.currentFrame || 0;
-        if (currentFrame >= weatherInfo.endFrame) {
-          lottieRef.current.goToAndPlay(weatherInfo.startFrame, true);
-        }
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [selectedWeather]);
-
   const handleWeatherSelect = (weather: WeatherType) => {
     setSelectedWeatherState(weather);
     setSelectedWeather(weather);
@@ -81,10 +87,20 @@ export default function MainPage() {
 
   const getWeatherEmoji = (weather: string) => {
     const emojis: Record<string, string> = {
-      sunny: '☀️', cloudy: '☁️', rainy: '🌧️', storm: '⛈️',
-      sunshower: '🌦️', foggy: '🌫️', snowy: '❄️',
+      basic: '🌊',
+      sunny: '☀️',
+      cloudy: '☁️',
+      rainy: '🌧️',
+      storm: '⛈️',
+      sunshower: '🌦️',
+      foggy: '🌫️',
+      snowy: '❄️',
+      fire: '🔥',
+      sunset: '🌅',
+      night: '🌙',
+      sunrise: '🌄',
     };
-    return emojis[weather] || '☀️';
+    return emojis[weather] || '🌊';
   };
 
   // 배경 클릭시 날씨 시트 열기 (다른 시트가 열려있지 않을 때만)
@@ -98,9 +114,9 @@ export default function MainPage() {
     <div className="full-screen" onClick={handleBackgroundClick}>
       <div className="main-background">
         <Lottie
-          lottieRef={lottieRef}
-          animationData={mainAnimation}
-          loop={false}
+          key={selectedWeatherState}
+          animationData={LOTTIE_FILES[selectedWeatherState]}
+          loop={true}
           autoplay={true}
           rendererSettings={{ preserveAspectRatio: 'xMidYMid slice' }}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
@@ -135,7 +151,7 @@ export default function MainPage() {
             {WEATHER_LIST.map((weather) => (
               <button
                 key={weather.id}
-                className={`weather-item ${selectedWeather === weather.id ? 'selected' : ''}`}
+                className={`weather-item ${selectedWeatherState === weather.id ? 'selected' : ''}`}
                 onClick={() => handleWeatherSelect(weather.id)}
               >
                 <span style={{ fontSize: '32px' }}>{getWeatherEmoji(weather.id)}</span>

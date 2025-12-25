@@ -1,20 +1,24 @@
-// 날씨(감정) 타입 - 7개
+// 날씨(감정) 타입 - 12개
 export type WeatherType =
+  | 'basic'      // 기본
   | 'sunny'      // 맑음
   | 'cloudy'     // 흐림
   | 'rainy'      // 비
   | 'storm'      // 폭풍
   | 'sunshower'  // 여우비
   | 'foggy'      // 안개
-  | 'snowy';     // 눈
+  | 'snowy'      // 눈
+  | 'fire'       // 불꽃
+  | 'sunset'     // 노을
+  | 'night'      // 밤
+  | 'sunrise';   // 새벽
 
 // 날씨 정보
 export interface WeatherInfo {
   id: WeatherType;
   korean: string;
   emotion: string;
-  startFrame: number;
-  endFrame: number;
+  lottieFile: string;
 }
 
 // 일기 타입

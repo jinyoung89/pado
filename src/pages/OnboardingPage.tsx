@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { Paragraph } from '@toss/tds-mobile';
-import iconImage from '../assets/icon.png';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -27,17 +26,22 @@ export default function OnboardingPage() {
         paddingTop: 'env(safe-area-inset-top)',
       }}>
         {/* 앱 아이콘 */}
-        <img
-          src={iconImage}
-          alt="PA:DO"
+        <div
           style={{
             width: '120px',
             height: '120px',
             borderRadius: '24px',
             marginBottom: '40px',
             boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+            background: 'linear-gradient(135deg, #3182f6 0%, #1b64da 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '60px',
           }}
-        />
+        >
+          🌊
+        </div>
 
         {/* 타이틀 */}
         <Paragraph typography="t2" fontWeight="bold" style={{

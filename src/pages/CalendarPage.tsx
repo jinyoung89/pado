@@ -34,6 +34,7 @@ export default function CalendarPage() {
 
   const getWeatherEmoji = (weatherType: string) => {
     const emojis: Record<string, string> = {
+      basic: '🌊',
       sunny: '☀️',
       cloudy: '☁️',
       rainy: '🌧️',
@@ -41,21 +42,30 @@ export default function CalendarPage() {
       sunshower: '🌦️',
       foggy: '🌫️',
       snowy: '❄️',
+      fire: '🔥',
+      sunset: '🌅',
+      night: '🌙',
+      sunrise: '🌄',
     };
-    return emojis[weatherType] || '';
+    return emojis[weatherType] || '🌊';
   };
 
   const getWeatherLabel = (weatherType: string) => {
     const labels: Record<string, string> = {
+      basic: '잔잔',
       sunny: '맑음',
       cloudy: '흐림',
       rainy: '비',
       storm: '폭풍',
-      sunshower: '소나기',
+      sunshower: '여우비',
       foggy: '안개',
       snowy: '눈',
+      fire: '불꽃',
+      sunset: '노을',
+      night: '밤',
+      sunrise: '새벽',
     };
-    return labels[weatherType] || '';
+    return labels[weatherType] || '잔잔';
   };
 
   const handleDayClick = (dateStr: string) => {

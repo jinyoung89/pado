@@ -1,56 +1,79 @@
 import type { WeatherInfo, WeatherType } from '../types';
 
-// 날씨(감정) 데이터 - 7개
-// Lottie main.json 파일 기준 프레임 정보
+// 날씨(감정) 데이터 - 12개
+// 개별 Lottie JSON 파일 사용
 export const WEATHER_DATA: Record<WeatherType, WeatherInfo> = {
+  basic: {
+    id: 'basic',
+    korean: '잔잔',
+    emotion: '평온한, 일상적인',
+    lottieFile: '01Basic 2.json',
+  },
   sunny: {
     id: 'sunny',
     korean: '맑음',
     emotion: '평화로운, 따뜻한',
-    startFrame: 900,
-    endFrame: 1831,
+    lottieFile: '02Sunny 2.json',
   },
   cloudy: {
     id: 'cloudy',
     korean: '흐림',
     emotion: '우울한, 무거운',
-    startFrame: 1800,
-    endFrame: 2731,
+    lottieFile: '03Cloudy 2.json',
   },
   rainy: {
     id: 'rainy',
     korean: '비',
     emotion: '슬픈, 지친',
-    startFrame: 2700,
-    endFrame: 3631,
+    lottieFile: '04Rain 2.json',
   },
   storm: {
     id: 'storm',
     korean: '폭풍',
     emotion: '화난, 격한',
-    startFrame: 3600,
-    endFrame: 5431,
+    lottieFile: '05Thunderstorm 2.json',
   },
   sunshower: {
     id: 'sunshower',
     korean: '여우비',
     emotion: '복잡한, 묘한',
-    startFrame: 5400,
-    endFrame: 6343,
+    lottieFile: '06Sunshower 2.json',
   },
   foggy: {
     id: 'foggy',
     korean: '안개',
     emotion: '혼란스러운, 불안한',
-    startFrame: 6300,
-    endFrame: 7231,
+    lottieFile: '07Fog 2.json',
   },
   snowy: {
     id: 'snowy',
     korean: '눈',
     emotion: '차가운, 공허한',
-    startFrame: 7200,
-    endFrame: 8131,
+    lottieFile: '08Snow 2.json',
+  },
+  fire: {
+    id: 'fire',
+    korean: '불꽃',
+    emotion: '열정적인, 뜨거운',
+    lottieFile: '09Fire 2.json',
+  },
+  sunset: {
+    id: 'sunset',
+    korean: '노을',
+    emotion: '아쉬운, 감성적인',
+    lottieFile: '10Sunset 2.json',
+  },
+  night: {
+    id: 'night',
+    korean: '밤',
+    emotion: '고요한, 잔잔한',
+    lottieFile: '11Night 2.json',
+  },
+  sunrise: {
+    id: 'sunrise',
+    korean: '새벽',
+    emotion: '희망찬, 새로운',
+    lottieFile: '12Sunrise 2.json',
   },
 };
 
