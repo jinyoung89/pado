@@ -1,9 +1,27 @@
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Paragraph } from '@toss/tds-mobile';
+import { closeView } from '@apps-in-toss/web-framework';
 import iconImage from '../assets/icon.png';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
+  const hasBaseHistoryRef = useRef(false);
+
+  // 온보딩에서 백버튼 → 앱 종료
+  useEffect(() => {
+    if (!hasBaseHistoryRef.current) {
+      window.history.pushState({ type: 'onboardingBase' }, '');
+      hasBaseHistoryRef.current = true;
+    }
+
+    const handlePopState = () => {
+      // 백 버튼 누르면 앱 종료
+      closeView();
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleStart = () => {
     navigate('/main', { replace: true });
