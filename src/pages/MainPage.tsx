@@ -47,14 +47,23 @@ export default function MainPage() {
 
   // history 상태 추적
   const hasSheetHistoryRef = useRef(false);
+  const hasBaseHistoryRef = useRef(false);
 
   // 바텀시트가 열려있는지 확인
   const isAnySheetOpen = isWeatherSheetOpen || isMenuSheetOpen || isDiarySelectOpen;
 
+  // 메인 페이지 진입 시 base history 추가 (백 버튼용)
+  useEffect(() => {
+    if (!hasBaseHistoryRef.current) {
+      window.history.pushState({ type: 'mainBase' }, '');
+      hasBaseHistoryRef.current = true;
+    }
+  }, []);
+
   // 바텀시트 열기 (history state 추가)
   const openSheet = useCallback((setter: (v: boolean) => void) => {
     if (!hasSheetHistoryRef.current) {
-      window.history.pushState({ sheet: true }, '');
+      window.history.pushState({ type: 'sheet' }, '');
       hasSheetHistoryRef.current = true;
     }
     setter(true);
@@ -79,16 +88,16 @@ export default function MainPage() {
 
   // 백버튼 핸들러
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = () => {
       if (hasSheetHistoryRef.current) {
-        // 시트 히스토리가 있으면 닫기만 (온보딩으로 안 감)
+        // 시트 히스토리가 pop됨 → 시트 닫기
         hasSheetHistoryRef.current = false;
         setIsWeatherSheetOpen(false);
         setIsMenuSheetOpen(false);
         setIsDiarySelectOpen(false);
-      } else {
-        // 시트가 없으면 온보딩으로 (히스토리 대체)
-        e.preventDefault();
+      } else if (hasBaseHistoryRef.current) {
+        // base 히스토리가 pop됨 → 온보딩으로
+        hasBaseHistoryRef.current = false;
         navigate('/', { replace: true });
       }
     };
