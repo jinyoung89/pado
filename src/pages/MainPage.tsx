@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BottomSheet, ListRow } from '@toss/tds-mobile';
-import { WEATHER_LIST, WEATHER_DATA } from '../data/weather';
+import { WEATHER_LIST } from '../data/weather';
 import type { WeatherType } from '../types';
 import { getSelectedWeather, setSelectedWeather, createOrUpdateTodayRecord } from '../utils/storage';
 
@@ -113,14 +114,24 @@ export default function MainPage() {
   return (
     <div className="full-screen" onClick={handleBackgroundClick}>
       <div className="main-background">
-        <Lottie
-          key={selectedWeatherState}
-          animationData={LOTTIE_FILES[selectedWeatherState]}
-          loop={true}
-          autoplay={true}
-          rendererSettings={{ preserveAspectRatio: 'xMidYMid slice' }}
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-        />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedWeatherState}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+          >
+            <Lottie
+              animationData={LOTTIE_FILES[selectedWeatherState]}
+              loop={true}
+              autoplay={true}
+              rendererSettings={{ preserveAspectRatio: 'xMidYMid slice' }}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </motion.div>
+        </AnimatePresence>
         <div style={{ position: 'absolute', bottom: '120px', left: 0, right: 0, textAlign: 'center', pointerEvents: 'none' }}>
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px' }}>
             화면을 터치해서 오늘의 날씨를 선택하세요
