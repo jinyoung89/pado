@@ -6,6 +6,7 @@ import { BottomSheet, ListRow } from '@toss/tds-mobile';
 import { WEATHER_LIST } from '../data/weather';
 import type { WeatherType } from '../types';
 import { getSelectedWeather, setSelectedWeather, createOrUpdateTodayRecord } from '../utils/storage';
+import { audioManager } from '../utils/audio';
 
 // Lottie 파일들 import
 import basic from '../assets/lottie/01Basic 2.json';
@@ -44,13 +45,30 @@ export default function MainPage() {
   const [isWeatherSheetOpen, setIsWeatherSheetOpen] = useState(false);
   const [isMenuSheetOpen, setIsMenuSheetOpen] = useState(false);
   const [isDiarySelectOpen, setIsDiarySelectOpen] = useState(false);
+  const [isVolumeSheetOpen, setIsVolumeSheetOpen] = useState(false);
+  const [bgmVolume, setBgmVolume] = useState(0.5);
+  const [sfxVolume, setSfxVolume] = useState(0.3);
 
   // history 상태 추적
   const hasSheetHistoryRef = useRef(false);
   const hasBaseHistoryRef = useRef(false);
+  const audioStartedRef = useRef(false);
 
   // 바텀시트가 열려있는지 확인
-  const isAnySheetOpen = isWeatherSheetOpen || isMenuSheetOpen || isDiarySelectOpen;
+  const isAnySheetOpen = isWeatherSheetOpen || isMenuSheetOpen || isDiarySelectOpen || isVolumeSheetOpen;
+
+  // 메인 진입 시 오디오 자동 재생 시도
+  useEffect(() => {
+    if (!audioStartedRef.current) {
+      audioManager.play(selectedWeatherState);
+      audioStartedRef.current = true;
+    }
+
+    // 페이지 떠날 때 오디오 정지
+    return () => {
+      audioManager.stop();
+    };
+  }, []);
 
   // 메인 페이지 진입 시 base history 추가 (백 버튼용)
   useEffect(() => {
@@ -74,6 +92,7 @@ export default function MainPage() {
     setIsWeatherSheetOpen(false);
     setIsMenuSheetOpen(false);
     setIsDiarySelectOpen(false);
+    setIsVolumeSheetOpen(false);
 
     if (hasSheetHistoryRef.current) {
       if (skipHistoryBack) {
@@ -95,6 +114,7 @@ export default function MainPage() {
         setIsWeatherSheetOpen(false);
         setIsMenuSheetOpen(false);
         setIsDiarySelectOpen(false);
+        setIsVolumeSheetOpen(false);
       } else if (hasBaseHistoryRef.current) {
         // base 히스토리가 pop됨 → 온보딩으로 (히스토리 완전 리셋)
         hasBaseHistoryRef.current = false;
@@ -114,7 +134,29 @@ export default function MainPage() {
     setSelectedWeatherState(weather);
     setSelectedWeather(weather);
     createOrUpdateTodayRecord(weather);
+
+    // 오디오 시작/변경 (사용자 인터랙션 후)
+    if (!audioStartedRef.current) {
+      audioManager.play(weather);
+      audioStartedRef.current = true;
+    } else {
+      audioManager.changeWeather(weather);
+    }
+
     closeAllSheets();
+  };
+
+  // 볼륨 조절 핸들러
+  const handleBgmVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    setBgmVolume(value);
+    audioManager.setBgmVolume(value);
+  };
+
+  const handleSfxVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    setSfxVolume(value);
+    audioManager.setSfxVolume(value);
   };
 
   const getWeatherEmoji = (weather: string) => {
@@ -137,10 +179,16 @@ export default function MainPage() {
 
   // 배경 클릭시 날씨 시트 열기 (다른 시트가 열려있지 않을 때만)
   const handleBackgroundClick = useCallback(() => {
+    // 첫 터치 시 오디오 시작
+    if (!audioStartedRef.current) {
+      audioManager.play(selectedWeatherState);
+      audioStartedRef.current = true;
+    }
+
     if (!isAnySheetOpen) {
       openSheet(setIsWeatherSheetOpen);
     }
-  }, [isAnySheetOpen, openSheet]);
+  }, [isAnySheetOpen, openSheet, selectedWeatherState]);
 
   return (
     <div className="full-screen" onClick={handleBackgroundClick}>
@@ -172,12 +220,16 @@ export default function MainPage() {
 
       <div className="bottom-actions" onClick={(e) => e.stopPropagation()}>
         <button className="action-btn" onClick={() => navigate('/breathing')}>
-          <span className="action-icon">🎵</span>
+          <span className="action-icon">❤️</span>
           <span className="action-label">심호흡</span>
         </button>
         <button className="action-btn" onClick={() => openSheet(setIsDiarySelectOpen)}>
           <span className="action-icon">✏️</span>
           <span className="action-label">기록</span>
+        </button>
+        <button className="action-btn" onClick={() => openSheet(setIsVolumeSheetOpen)}>
+          <span className="action-icon">🔊</span>
+          <span className="action-label">소리</span>
         </button>
         <button className="action-btn" onClick={() => openSheet(setIsMenuSheetOpen)}>
           <span className="action-icon">☰</span>
@@ -257,6 +309,45 @@ export default function MainPage() {
             verticalPadding="large"
             border="none"
           />
+        </div>
+      </BottomSheet>
+
+      {/* 소리 조절 시트 */}
+      <BottomSheet open={isVolumeSheetOpen} onDimmerClick={closeSheet}>
+        <BottomSheet.Header>소리 조절</BottomSheet.Header>
+        <div style={{ padding: '16px 20px 24px', paddingBottom: 'calc(24px + env(safe-area-inset-bottom))' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '20px', marginRight: '12px' }}>🎵</span>
+              <span style={{ fontSize: '15px', fontWeight: 500, color: '#191f28' }}>배경음악</span>
+              <span style={{ marginLeft: 'auto', fontSize: '14px', color: '#6b7684' }}>{Math.round(bgmVolume * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={bgmVolume}
+              onChange={handleBgmVolumeChange}
+              style={{ width: '100%', accentColor: '#3182f6' }}
+            />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '20px', marginRight: '12px' }}>🔊</span>
+              <span style={{ fontSize: '15px', fontWeight: 500, color: '#191f28' }}>효과음</span>
+              <span style={{ marginLeft: 'auto', fontSize: '14px', color: '#6b7684' }}>{Math.round(sfxVolume * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={sfxVolume}
+              onChange={handleSfxVolumeChange}
+              style={{ width: '100%', accentColor: '#3182f6' }}
+            />
+          </div>
         </div>
       </BottomSheet>
     </div>
