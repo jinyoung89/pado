@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,45 +45,59 @@ export default function MainPage() {
   const [isMenuSheetOpen, setIsMenuSheetOpen] = useState(false);
   const [isDiarySelectOpen, setIsDiarySelectOpen] = useState(false);
 
+  // history 상태 추적
+  const hasSheetHistoryRef = useRef(false);
+
   // 바텀시트가 열려있는지 확인
   const isAnySheetOpen = isWeatherSheetOpen || isMenuSheetOpen || isDiarySelectOpen;
 
   // 바텀시트 열기 (history state 추가)
   const openSheet = useCallback((setter: (v: boolean) => void) => {
-    window.history.pushState({ sheet: true }, '');
+    if (!hasSheetHistoryRef.current) {
+      window.history.pushState({ sheet: true }, '');
+      hasSheetHistoryRef.current = true;
+    }
     setter(true);
   }, []);
 
-  // 바텀시트 닫기
-  const closeAllSheets = useCallback(() => {
+  // 바텀시트 닫기 (history 정리)
+  const closeAllSheets = useCallback((skipHistoryBack = false) => {
     setIsWeatherSheetOpen(false);
     setIsMenuSheetOpen(false);
     setIsDiarySelectOpen(false);
+
+    if (hasSheetHistoryRef.current) {
+      if (!skipHistoryBack) {
+        window.history.back();
+      }
+      hasSheetHistoryRef.current = false;
+    }
   }, []);
 
   // 백버튼 핸들러
   useEffect(() => {
     const handlePopState = () => {
-      if (isAnySheetOpen) {
-        closeAllSheets();
+      if (hasSheetHistoryRef.current) {
+        hasSheetHistoryRef.current = false;
+        setIsWeatherSheetOpen(false);
+        setIsMenuSheetOpen(false);
+        setIsDiarySelectOpen(false);
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [isAnySheetOpen, closeAllSheets]);
+  }, []);
 
-  // TDS BottomSheet의 onClose 핸들러 (history back 포함)
+  // TDS BottomSheet의 onDimmerClick 핸들러
   const closeSheet = useCallback(() => {
-    if (isAnySheetOpen) {
-      window.history.back();
-    }
-  }, [isAnySheetOpen]);
+    closeAllSheets();
+  }, [closeAllSheets]);
 
   const handleWeatherSelect = (weather: WeatherType) => {
     setSelectedWeatherState(weather);
     setSelectedWeather(weather);
     createOrUpdateTodayRecord(weather);
-    setIsWeatherSheetOpen(false);
+    closeAllSheets();
   };
 
   const getWeatherEmoji = (weather: string) => {
@@ -178,7 +192,7 @@ export default function MainPage() {
         <BottomSheet.Header>감정 정리하기</BottomSheet.Header>
         <div style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <ListRow
-            onClick={() => { closeAllSheets(); navigate('/diary'); }}
+            onClick={() => { closeAllSheets(true); navigate('/diary'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>✏️</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="자유롭게 적기" bottom="내 마음을 자유롭게 기록해요" />}
             withArrow
@@ -186,7 +200,7 @@ export default function MainPage() {
             verticalPadding="large"
           />
           <ListRow
-            onClick={() => { closeAllSheets(); navigate('/diary/guided'); }}
+            onClick={() => { closeAllSheets(true); navigate('/diary/guided'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>💬</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="질문 따라가기" bottom="질문에 답하며 마음을 정리해요" />}
             withArrow
@@ -202,7 +216,7 @@ export default function MainPage() {
         <BottomSheet.Header>메뉴</BottomSheet.Header>
         <div style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <ListRow
-            onClick={() => { closeAllSheets(); navigate('/calendar'); }}
+            onClick={() => { closeAllSheets(true); navigate('/calendar'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>📅</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="캘린더" bottom="지난 기록을 돌아봐요" />}
             withArrow
@@ -210,7 +224,7 @@ export default function MainPage() {
             verticalPadding="large"
           />
           <ListRow
-            onClick={() => { closeAllSheets(); navigate('/timer'); }}
+            onClick={() => { closeAllSheets(true); navigate('/timer'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>⏰</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="예약종료" bottom="타이머를 설정해요" />}
             withArrow
@@ -218,7 +232,7 @@ export default function MainPage() {
             verticalPadding="large"
           />
           <ListRow
-            onClick={() => { closeAllSheets(); navigate('/settings'); }}
+            onClick={() => { closeAllSheets(true); navigate('/settings'); }}
             left={<span style={{ fontSize: '24px', fontFamily: 'Tossface' }}>⚙️</span>}
             contents={<ListRow.Texts type="2RowTypeA" top="설정" bottom="앱 설정을 변경해요" />}
             withArrow
