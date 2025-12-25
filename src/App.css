@@ -1,0 +1,296 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 전체화면 컨테이너 */
+.full-screen {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 메인 배경 */
+.main-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* 하단 버튼 영역 */
+.bottom-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 10;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.action-btn:active {
+  opacity: 0.7;
+}
+
+.action-icon {
+  font-size: 24px;
+}
+
+.action-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+/* 페이지 헤더 */
+.page-header {
+  position: relative;
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+}
+
+/* 심호흡 페이지 */
+.breathing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 20px;
+  background: white;
+}
+
+.breathing-circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--adaptiveBlue500, #3182f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 4s ease-in-out;
+}
+
+.breathing-circle.inhale {
+  transform: scale(1.5);
+}
+
+.breathing-circle.exhale {
+  transform: scale(1);
+}
+
+.breathing-text {
+  color: var(--adaptiveGrey900, #191f28);
+  font-size: 17px;
+  margin-top: 40px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* 날씨 선택 그리드 - TDS 스타일 */
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.weather-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 4px;
+  border-radius: 12px;
+  background: var(--adaptiveGrey50, #f7f7f7);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.weather-item:active {
+  transform: scale(0.95);
+  background: var(--adaptiveGrey100, #ebebeb);
+}
+
+.weather-item.selected {
+  background: var(--adaptiveBlue50, #e8f3ff);
+  border-color: var(--adaptiveBlue500, #3182f6);
+}
+
+.weather-item-label {
+  font-size: 13px;
+  color: var(--adaptiveGrey700, #4e5968);
+  font-weight: 500;
+}
+
+.weather-item.selected .weather-item-label {
+  color: var(--adaptiveBlue500, #3182f6);
+}
+
+/* 캘린더 */
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--adaptiveGrey900, #191f28);
+}
+
+.calendar-day:empty {
+  background: transparent;
+}
+
+.calendar-day.has-record {
+  background: var(--adaptiveBlue50, #e8f3ff);
+}
+
+.calendar-day.today {
+  background: var(--adaptiveBlue500, #3182f6);
+  color: white;
+}
+
+/* 질문따라가기 */
+.guided-container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 커스텀 바텀시트 */
+.custom-bottomsheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.custom-bottomsheet-container {
+  width: 100%;
+  max-height: 80vh;
+  background-color: #ffffff;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+.custom-bottomsheet-header {
+  padding: 20px 24px 16px;
+  text-align: center;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.custom-bottomsheet-content {
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* 커스텀 리스트 아이템 */
+.custom-list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.custom-list-item:active {
+  background: #f7f7f7;
+}
+
+.custom-list-item-emoji {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-list-item-texts {
+  flex: 1;
+}
+
+.custom-list-item-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #191f28;
+  margin-bottom: 2px;
+}
+
+.custom-list-item-description {
+  font-size: 14px;
+  color: #8b95a1;
+}
+
+/* TDS ListRow 텍스트 색상 강제 지정 */
+[class*="ListRow"] [class*="text"],
+[class*="ListRow"] [class*="Text"],
+[class*="ListRow"] span,
+[class*="ListRow"] p,
+[class*="list-row"] span,
+[class*="list-row"] p {
+  color: #191f28 !important;
+}
+
+[class*="ListRow"] [class*="description"],
+[class*="ListRow"] [class*="sub"],
+[class*="ListRow"] [class*="bottom"],
+[class*="list-row"] [class*="description"],
+[class*="list-row"] [class*="sub"],
+[class*="list-row"] [class*="bottom"] {
+  color: #6b7684 !important;
+}
