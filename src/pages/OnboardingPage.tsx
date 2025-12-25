@@ -6,7 +6,7 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    navigate('/main');
+    navigate('/main', { replace: true });
   };
 
   return (

@@ -76,17 +76,22 @@ export default function MainPage() {
 
   // 백버튼 핸들러
   useEffect(() => {
-    const handlePopState = () => {
+    const handlePopState = (e: PopStateEvent) => {
       if (hasSheetHistoryRef.current) {
+        // 시트가 열려있으면 닫기
         hasSheetHistoryRef.current = false;
         setIsWeatherSheetOpen(false);
         setIsMenuSheetOpen(false);
         setIsDiarySelectOpen(false);
+      } else {
+        // 시트가 없으면 온보딩으로 (히스토리 대체)
+        e.preventDefault();
+        navigate('/', { replace: true });
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [navigate]);
 
   // TDS BottomSheet의 onDimmerClick 핸들러
   const closeSheet = useCallback(() => {
