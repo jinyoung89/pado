@@ -8,7 +8,7 @@ import type { WeatherType } from '../types';
 import { getSelectedWeather, setSelectedWeather, createOrUpdateTodayRecord } from '../utils/storage';
 
 // Lottie 파일들 import
-import basic from '../assets/lottie/01Basic 2.json';
+import basic from '../assets/lottie/01Basic2.json';
 import sunny from '../assets/lottie/02Sunny 2.json';
 import cloudy from '../assets/lottie/03Cloudy 2.json';
 import rainy from '../assets/lottie/04Rain 2.json';

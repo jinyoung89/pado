@@ -7,7 +7,7 @@ export const WEATHER_DATA: Record<WeatherType, WeatherInfo> = {
     id: 'basic',
     korean: '잔잔',
     emotion: '평온한, 일상적인',
-    lottieFile: '01Basic 2.json',
+    lottieFile: '01Basic2.json',
   },
   sunny: {
     id: 'sunny',
